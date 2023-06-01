@@ -10,31 +10,22 @@ const loginUser = async(req, res) => {
 
     if(!email || !password){
         response.error(res, "Email and password are required!", 400)
-        // return res.status(401).json({error : "Email and password are required!"})
     }
     const credentials = await AuthModel.checkUserEmail({email})
     if(!credentials){
-        response.error(res, "User does not exist!Please try again", 404)
-        // return res.status(409).json({error: "User does not exist!Please try again"})
+        response.error(res, "User does not exist!Please try again", 404)     
     }
-
     if(!AuthUtil.comparePassword(password, credentials.Password)){
         response.error(res, "Invalid password! Please try again!", 401)
-        // return res.status(404).json({error : "Invalid password! Please try again!"})
     }
-
     try {
         const accessToken = AuthUtil.generateToken(credentials);
         if(!accessToken){
-            response.error(res, "Invalid password! Please try again!", 401)
-            // return res.status(401).json({error : "Token not created, Please try again!"})
+            response.error(res)
         }
-
         await UserModel.updateLoginDate({ date : currentDate.toISOString(), userId : credentials.AcctID})
-        console.log('here')
         const user = await UserModel.getUserById(credentials.AcctID);
         response.success(res, { ...user,accessToken }, `Logged In!`)
-        // return res.status(200).json({ ...user,accessToken })
     } catch (error) {
         response.error(res)
     }
@@ -55,14 +46,13 @@ const registerUser = async(req, res) => {
         }
         const accntID = await UserModel.createAccount({email, name});
         if(!accntID){
-            response.error(res, "Unprocessable Entity", 422)
-            // return res.status(422).json({error: "Unprocessable Entity"})
+            response.error(res, "Server could not process request! Please try again")
         }
     
         const hashedPassword = await AuthUtil.hashPassword(password);
         const newUser = await AuthModel.createCredentials({email, hashedPassword, accntID});
         if(newUser === 0) {
-            response.error(res, "Unprocessable Entity", 422)
+            response.error(res, "Server could not process request! Please try again")
         }
         response.success(res, { email, password }, `Account created successfully`)
     

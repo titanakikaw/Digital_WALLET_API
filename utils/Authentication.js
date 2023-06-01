@@ -17,21 +17,21 @@ const generateToken = (params) => {
 const verifyToken = (req,res,next) => {
     const { userId } = req.params
     const { authorization } = req.headers
-    if(!authorization){
-        return res.status(401).json({ error : "Authentication token is required to access the requested resource. Please provide a valid token."})
+    if(!authorization){ 
+        return response.error(res, "Authentication token is required to access the requested resource. Please provide a valid token.", 401)
     }
     const token = authorization.replace('Bearer ', '')
     jwt.verify(token, secretKey, async(err, decoded) => {
         if(err){
-            return res.status(401).json({ error : "Invalid token or Token has already expired! Please try again"})
+            return response.error(res, "Invalid Token!", 401)
         }
         const { Email } = decoded;
         if(!Email){
-            response.error(res, "Unauthorized", 401)
+            return response.error(res, "Missing important resources", 400)
         }
         const { AcctID } = await checkUserEmail({ email : Email})
         if(AcctID != userId){
-            response.error(res, "Unauthorized", 401)
+            return response.error(res, "Access Denied", 403)
         }
         next();
     })

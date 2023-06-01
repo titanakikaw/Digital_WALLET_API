@@ -4,9 +4,11 @@ const { createTransaction } = require('../utils/utils');
 
 const checkBalance = async(req, res) => {
     const { userId } = req.params;
+
     if(!userId){
         response.error(res, "User undefined!Please try again", 400)
     }
+
     const balance = await TransModel.getBalance({userId})
     if(!balance){
         response.error(res, "Account not found! Please try again", 404)
@@ -27,15 +29,12 @@ const depositBalance = async(req,res) => {
     const { depositBal } = req.body
     const { userId } = req.params
 
-
     if(!userId || !depositBal ){
-        response.error(res, "No data provided! Please try again", 401)
-        // return res.status(401).json({error : "No data provided! Please try again"})
+        response.error(res, "No data provided! Please try again", 400)
     }
 
     if (isNaN(depositBal) || parseFloat(depositBal) < 0 ) {
-        response.error(res, "Invalid entry! Please try again", 422)
-        // return res.status(401).json({ error: "Invalid deposit balance format! Please try again!" });
+        response.error(res, "Invalid entry! Please try again", 401)
     }
 
     const prevBalance = await TransModel.getBalance({userId})
@@ -48,8 +47,7 @@ const depositBalance = async(req,res) => {
         const updatedBalance = parseFloat(depositBal) + parseFloat(prevBalance.AccountBalance);
         const newBalance = await TransModel.updateBalance({ userId, balance : updatedBalance })
         if(newBalance.affectedRows === 0){
-            response.error(res)
-            // return res.status(401).json({error : "Unable to update balance! Please try again"})
+            response.error(res, "Unable to update, Please try again!")
         }
 
         const newParams = createTransaction({userId, description : "", amount : depositBal, transType: "Deposit" })
@@ -73,34 +71,29 @@ const debitBalance = async(req,res) => {
 
     if (isNaN(debitBal)) {
         response.error(res, "Invalid entry! Please try again", 401)
-        // return res.status(401).json({ error: "Invalid debit balance format!", details : "Invalid debit format! Please try again" });
     }
 
     const prevBalance = await TransModel.getBalance({userId})
     if(!prevBalance?.AccountBalance){
         response.error(res, "Account not found! Please try again", 404)
-        // return res.status(404).json({error : "Account not found! Please try again"})
+      
     }
 
     if(parseFloat(debitBal) > parseFloat(prevBalance.AccountBalance)){
         response.error(res, "Invalid entry! Please try again", 401)
-        // return res.status(401).json({error: "Invalid transaction", details: "Debit balance cannot the greater than current account balance! Please try again."})
     }
 
     try {
         const updatedBalance =  parseFloat(prevBalance.AccountBalance) - parseFloat(debitBal);
         const newBalance = await TransModel.updateBalance({ userId, balance : updatedBalance })
         if(newBalance.affectedRows === 0){
-            response.error(res)
-            // return res.status(401).json({error : "Unable to update balance! Please try again"})
+            response.error(res, "Unable to update, Please try again!")
         }
         const newParams = createTransaction({userId, description : "", amount : debitBal, transType: "Debit" })
+        
         TransModel.newTransaction(newParams)
 
-
         response.success(res, {AccountBalance : updatedBalance}, `Successfuly updated! Your new balance is ${updatedBalance.toLocaleString('en-ph', { style: 'currency', currency: 'php'})}`)
-
-        // return res.status(200).json({ message : `Successfuly updated! Your new balance is ${updatedBalance.toLocaleString('en-ph', { style: 'currency', currency: 'php'})}`,})
 
     } catch (error) {
         response.error(res)

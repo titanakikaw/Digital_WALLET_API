@@ -7,10 +7,32 @@ module.exports = {
         });
     },
 
-    error: function (res, message = "Internal Server Error", statusCode = 500) {
+    error: function (res, details = "" , statusCode = 500) {
+        let message = "";
+        switch(statusCode){
+            case 500: 
+                message = "Internal Server Error";
+                break;
+            case 400:
+                message = "Bad Request";
+                break;
+            case 401:
+                message = "Unauthorized";
+                break;
+            case 403:
+                message = "Forbidden";
+                break;
+            case 404:
+                message = "Not Found";
+                break;
+            case 422:
+                message = "Unprocessable Entity";
+                break;
+        }
         res.status(statusCode).json({
         status: "error",
         message: message,
+        details: details
         });
     },
 };
