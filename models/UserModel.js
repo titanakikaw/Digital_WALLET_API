@@ -39,8 +39,33 @@ const getUserById = async(id) => {
     }
 }
 
+const updateLoginDate = async(params) => {
+    const { date, userId} = params
+
+
+    const sql = `UPDATE ${process.env.TBL_USER_ACCOUNT} SET LastLoginDate = ? where UserID = ?`;
+    try {
+        const result = await new Promise((resolve, reject) => {
+            db.query(sql, [date, userId], (err, result) => {
+                if(err){
+                    reject(err);
+                }
+                resolve(result)
+            })
+        })
+        if(!result){
+            return null
+        }
+        return result;
+    } catch (error) {
+        console.log(error)
+        return null;
+    }
+}
+
 
 module.exports = {
     createAccount,
-    getUserById
+    getUserById,
+    updateLoginDate
 }

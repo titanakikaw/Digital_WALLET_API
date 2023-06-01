@@ -12,6 +12,7 @@ const TransRoute = require('./routes/TransRoute');
 
 app.use(bodyParser.json())
 app.use(cors())
+
 app.use('/auth', AuthRouter)
 app.use('/users',UserRoutes)
 app.use('/api/transaction',TransRoute)

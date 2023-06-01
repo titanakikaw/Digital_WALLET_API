@@ -10,6 +10,8 @@ const createTransaction = ({userId, description, amount = 0, transType}) => {
     return newTransaction
 }
 
+
+
 module.exports = {
-    createTransaction
+    createTransaction,
 }
