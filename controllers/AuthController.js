@@ -12,9 +12,10 @@ const loginUser = async(req, res) => {
         response.error(res, "Email and password are required!", 400)
     }
     const credentials = await AuthModel.checkUserEmail({email})
-    if(!credentials){
-        response.error(res, "User does not exist!Please try again", 404)     
+    if(credentials == null || !credentials){
+        return response.error(res, "User does not exist!Please try again", 404)     
     }
+    console.log(credentials)
     if(!AuthUtil.comparePassword(password, credentials.Password)){
         response.error(res, "Invalid password! Please try again!", 401)
     }
