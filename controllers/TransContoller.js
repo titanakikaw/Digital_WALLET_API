@@ -15,8 +15,8 @@ const checkBalance = async(req, res) => {
     }
 
     try {
-        const newParams = createTransaction({userId, description : "", transType: "Balance Inquiry" })
-        TransModel.newTransaction(newParams)
+        // const newParams = createTransaction({userId, description : "", transType: "Balance Inquiry" })
+        // TransModel.newTransaction(newParams)
 
         response.success(res, balance, `Your account balance is ${balance.AccountBalance.toLocaleString('en-ph', { style :'currency', currency: 'PHP'})}`)
     } catch (error) {

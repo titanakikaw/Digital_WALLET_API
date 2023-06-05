@@ -35,7 +35,7 @@ const verifyToken = (req,res,next) => {
             if(AcctID != userId){
                 return response.error(res, "Access Denied", 403)
             }
-           
+        //    console.log('still here')
             next();
         })
     } catch (error) {
