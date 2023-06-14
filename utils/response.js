@@ -29,7 +29,7 @@ module.exports = {
                 message = "Unprocessable Entity";
                 break;
         }
-        res.status(statusCode).json({
+        return res.status(statusCode).json({
         status: "error",
         message: message,
         details: details

@@ -6,12 +6,12 @@ const checkBalance = async(req, res) => {
     const { userId } = req.params;
 
     if(!userId){
-        response.error(res, "User undefined!Please try again", 400)
+        return response.error(res, "User undefined!Please try again", 400)
     }
 
     const balance = await TransModel.getBalance({userId})
     if(!balance){
-        response.error(res, "Account not found! Please try again", 404)
+        return response.error(res, "Account not found! Please try again", 404)
     }
 
     try {
@@ -30,16 +30,16 @@ const depositBalance = async(req,res) => {
     const { userId } = req.params
 
     if(!userId || !depositBal ){
-        response.error(res, "No data provided! Please try again", 400)
+        return response.error(res, "No data provided! Please try again", 400)
     }
 
     if (isNaN(depositBal) || parseFloat(depositBal) < 0 ) {
-        response.error(res, "Invalid entry! Please try again", 401)
+        return response.error(res, "Invalid entry! Please try again", 401)
     }
 
     const prevBalance = await TransModel.getBalance({userId})
     if(prevBalance?.AccountBalance < 0 ){
-        response.error(res, "Account not found! Please try again", 404)
+        return response.error(res, "Account not found! Please try again", 404)
         // return res.status(404).json({error : "Account not found! Please try again"})
     }
 
@@ -47,7 +47,7 @@ const depositBalance = async(req,res) => {
         const updatedBalance = parseFloat(depositBal) + parseFloat(prevBalance.AccountBalance);
         const newBalance = await TransModel.updateBalance({ userId, balance : updatedBalance })
         if(newBalance.affectedRows === 0){
-            response.error(res, "Unable to update, Please try again!")
+            return response.error(res, "Unable to update, Please try again!")
         }
 
         const newParams = createTransaction({userId, description : "", amount : depositBal, transType: "Deposit" })
@@ -66,28 +66,28 @@ const debitBalance = async(req,res) => {
     const { debitBal } = req.body
     const { userId } = req.params
     if(!userId || !debitBal ){
-        response.error(res, "No data provided! Please try again", 401)
+        return response.error(res, "No data provided! Please try again", 401)
     }
 
     if (isNaN(debitBal)) {
-        response.error(res, "Invalid entry! Please try again", 401)
+        return response.error(res, "Invalid entry! Please try again", 401)
     }
 
     const prevBalance = await TransModel.getBalance({userId})
     if(!prevBalance?.AccountBalance){
-        response.error(res, "Account not found! Please try again", 404)
+        return response.error(res, "Account not found! Please try again", 404)
       
     }
 
     if(parseFloat(debitBal) > parseFloat(prevBalance.AccountBalance)){
-        response.error(res, "Invalid entry! Please try again", 401)
+        return response.error(res, "Invalid entry! Please try again", 401)
     }
 
     try {
         const updatedBalance =  parseFloat(prevBalance.AccountBalance) - parseFloat(debitBal);
         const newBalance = await TransModel.updateBalance({ userId, balance : updatedBalance })
         if(newBalance.affectedRows === 0){
-            response.error(res, "Unable to update, Please try again!")
+            return response.error(res, "Unable to update, Please try again!")
         }
         const newParams = createTransaction({userId, description : "", amount : debitBal, transType: "Debit" })
         
@@ -106,14 +106,14 @@ const getHistory = async(req,res) => {
     const { userId } = req.params
    
     if(!userId){
-        response.error(res, "Invalid entry! Please try again", 401)
+        return response.error(res, "Invalid entry! Please try again", 401)
     }
 
 
     try {
         const transactionHistory = await TransModel.getAllTransactions({userId});
         if(!transactionHistory){
-            response.error(res, "No data was found! Please try again", 404)
+            return response.error(res, "No data was found! Please try again", 404)
             // return res.status(404).json({error : "Not Found", message: "No data was found! Please try again"})
         }
     

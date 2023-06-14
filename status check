@@ -1,0 +1,43 @@
+[1mdiff --git a/controllers/AuthController.js b/controllers/AuthController.js[m
+[1mindex 70acba3..49c23cc 100644[m
+[1m--- a/controllers/AuthController.js[m
+[1m+++ b/controllers/AuthController.js[m
+[36m@@ -9,20 +9,20 @@[m [mconst loginUser = async(req, res) => {[m
+     const currentDate = new Date();[m
+ [m
+     if(!email || !password){[m
+[31m-        response.error(res, "Email and password are required!", 400)[m
+[32m+[m[32m        return response.error(res, "Email and password are required!", 400)[m
+     }[m
+     const credentials = await AuthModel.checkUserEmail({email})[m
+     if(credentials == null || !credentials){[m
+         return response.error(res, "User does not exist!Please try again", 404)     [m
+     }[m
+[31m-    console.log(credentials)[m
+[31m-    if(!AuthUtil.comparePassword(password, credentials.Password)){[m
+[31m-        response.error(res, "Invalid password! Please try again!", 401)[m
+[32m+[m[32m    if(! await AuthUtil.comparePassword(password, credentials.Password)){[m
+[32m+[m[32m        return response.error(res, "Invalid password! Please try again!", 401)[m
+     }[m
+     try {[m
+[32m+[m[32m        // console.log(await AuthUtil.comparePassword(password, credentials.Password))[m
+         const accessToken = AuthUtil.generateToken(credentials);[m
+         if(!accessToken){[m
+[31m-            response.error(res)[m
+[32m+[m[32m            return response.error(res)[m
+         }[m
+         await UserModel.updateLoginDate({ date : currentDate.toISOString(), userId : credentials.AcctID})[m
+         const user = await UserModel.getUserById(credentials.AcctID);[m
+[1mdiff --git a/utils/response.js b/utils/response.js[m
+[1mindex 86bb7e1..07b5a92 100644[m
+[1m--- a/utils/response.js[m
+[1m+++ b/utils/response.js[m
+[36m@@ -29,7 +29,7 @@[m [mmodule.exports = {[m
+                 message = "Unprocessable Entity";[m
+                 break;[m
+         }[m
+[31m-        res.status(statusCode).json({[m
+[32m+[m[32m        return res.status(statusCode).json({[m
+         status: "error",[m
+         message: message,[m
+         details: details[m
